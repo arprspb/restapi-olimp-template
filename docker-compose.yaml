@@ -1,0 +1,30 @@
+version: '2.3'
+
+services:
+  db:
+    image: postgres:latest
+    restart: always
+    env_file: 
+      - .env
+    volumes:
+      - ./data/db:/var/lib/postgresql/data/
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 7
+      start_period: 15s
+
+  
+
+  backend:
+    build: 
+      context: ./src/
+    restart: always
+    env_file: 
+      - .env
+    ports:
+      - ${PORT}:8000
+    depends_on:
+      db:
+        condition: service_healthy
